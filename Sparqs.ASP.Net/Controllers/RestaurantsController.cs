@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Sparqs.ASP.Net.Models;
 
@@ -11,33 +11,34 @@ namespace Sparqs.ASP.Net.Controllers
     {
         private RestaurantContext _context;
 
-        private WebApiConnection apiConnection;
+        private WebApiService WebApiService;
 
         public RestaurantsController(RestaurantContext context)
         {
             _context = context;
-            apiConnection = new WebApiConnection();
+            WebApiService = new WebApiService();
         }
 
         // GET: api/Restaurants
         [HttpGet]
         public IEnumerable<Restaurant> GetRestaurants()
         { 
-            return apiConnection.readRestaurants();
+            return WebApiService.GetRestaurants();
         }
 
         // GET: api/Restaurants/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Restaurant>> GetRestaurant(long id)
+        public Restaurant GetRestaurantById(int id)
         {
-            var restaurant = await _context.Restaurants.FindAsync(id);
+            return WebApiService.GetRestaurantById(id);
+        }
 
-            if (restaurant == null)
-            {
-                return NotFound();
-            }
-
-            return restaurant;
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public void SaveRestaurant(Restaurant restaurant)
+        {
+            WebApiService.SaveRestaurant(restaurant);
         }
     }
 }
